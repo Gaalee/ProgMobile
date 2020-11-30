@@ -16,7 +16,7 @@ Le serveur est écoute.
 ### Client Setup
 `npm install`
 
-`cordova platform add broawser`
+`cordova platform add browser`
 
 `cordova build browser`
 
