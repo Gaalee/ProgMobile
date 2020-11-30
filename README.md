@@ -15,9 +15,13 @@ Le serveur est écoute.
 
 ### Client Setup
 `npm install`
+
 `cordova platform add broawser`
+
 `cordova build browser`
+
 `cordova run browser`
+
 Vous pouvez remplacer browser par n'importe quelle platforme de votre choix (android...).
 
 Votre client serveur doivent communiquer.
