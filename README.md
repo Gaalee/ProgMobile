@@ -9,6 +9,7 @@ Se placer respectivement dans les dossiers client et serveur.
 
 ### Serveur Setup
 `npm install`
+
 `node Server.js`
 Le serveur est écoute.
 
