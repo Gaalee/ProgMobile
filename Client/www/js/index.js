@@ -30,13 +30,36 @@ function onDeviceReady() {
     document.getElementById('WebSocketStatus').innerText = "Try to connect using WebSocket";
 
     // Create the Web socket !
-    const ws = new WebSocket('ws://localhost:9898/');
-    ws.onopen = function() {
-        console.log('WebSocket Client Connected');
-        ws.send('Hi this is web client.');
-    };
-    ws.onmessage = function(e) {
-        console.log("Received: '" + e.data + "'");
-        document.getElementById('WebSocketStatus').innerText = "Received from server :" + e.data;
-    };
+//    const ws = new WebSocket('ws://localhost:9898/');
+//    ws.onopen = function() {
+//        console.log('WebSocket Client Connected');
+//        ws.send('Hi this is web client.');
+//    };
+//    ws.onmessage = function(e) {
+//        console.log("Received: '" + e.data + "'");
+//        document.getElementById('WebSocketStatus').innerText = "Received from server :" + e.data;
+//    };
+
+    const socket = new WebSocket('ws://localhost:9898');
+    socket.addEventListener('open', function (event) {
+      console.log('WebSocket Client Connected');
+      socket.send('Hi this is web client.');
+    });
+
+    socket.addEventListener('message', function (event) {
+      //console.log('Message from server ', event.data);
+      console.log("Received: '" + event.data + "'");
+      document.getElementById('WebSocketStatus').innerText = "Received from server :" + event.data;
+    });
+
+    socket.addEventListener('close', function (event) {
+      console.log('The connection has been closed');
+    });
+
+    $('#register_player').submit(function(){
+        socket.send($('#pseudo').val());
+        //socket.emit('message', "Input");
+        //$('#Input').val('');
+        return false;
+      });
 }
