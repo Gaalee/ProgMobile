@@ -9,14 +9,19 @@ Se placer respectivement dans les dossiers client et serveur.
 
 ### Serveur Setup
 `npm install`
+
 `node Server.js`
 Le serveur est écoute.
 
 ### Client Setup
 `npm install`
-`cordova platform add broawser`
+
+`cordova platform add browser`
+
 `cordova build browser`
+
 `cordova run browser`
+
 Vous pouvez remplacer browser par n'importe quelle platforme de votre choix (android...).
 
 Votre client serveur doivent communiquer.
