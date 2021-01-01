@@ -40,7 +40,8 @@
     </head>
     <body>
         <div class="app">
-            <h1>Cordova</h1>
+            <h1>Tron</h1>
+            <p id="messages"></p>
             <form id ="register_player">
                 <input type="text" id="pseudo" placeholder="Entrez votre pseudo"><br>
                 <input type="submit" value="Rejoindre la salle d'attente">
@@ -50,7 +51,8 @@
                 <p class="event received">Device is Ready</p>
             </div>
             <h1>WebSocket</h1>
-            <p id="WebSocketStatus">Waiting for cordova to initialize</p>
+            <!--<p id="WebSocketStatus">Waiting for cordova to initialize</p>-->
+            <ul id="player_waiting"></ul>
         </div>
         <script src="cordova.js"></script>
         <script src="js/index.js"></script>

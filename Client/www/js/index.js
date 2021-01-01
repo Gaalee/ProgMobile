@@ -27,7 +27,7 @@ function onDeviceReady() {
     document.getElementById('deviceready').classList.add('ready');
 
     // Say now we will try to connect using WebSocket
-    document.getElementById('WebSocketStatus').innerText = "Try to connect using WebSocket";
+    //document.getElementById('WebSocketStatus').innerText = "Try to connect using WebSocket";
 
     // Create the Web socket !
 //    const ws = new WebSocket('ws://localhost:9898/');
@@ -41,15 +41,9 @@ function onDeviceReady() {
 //    };
 
     const socket = new WebSocket('ws://localhost:9898');
-    socket.addEventListener('open', function (event) {
-      console.log('WebSocket Client Connected');
-      socket.send('Hi this is web client.');
-    });
 
-    socket.addEventListener('message', function (event) {
-      //console.log('Message from server ', event.data);
-      console.log("Received: '" + event.data + "'");
-      document.getElementById('WebSocketStatus').innerText = "Received from server :" + event.data;
+    socket.addEventListener('open', function (event) {
+      console.log('Client Linked');
     });
 
     socket.addEventListener('close', function (event) {
@@ -57,9 +51,31 @@ function onDeviceReady() {
     });
 
     $('#register_player').submit(function(){
-        socket.send($('#pseudo').val());
+        var obj = {
+            event: "bdd_add",
+            name: $("#pseudo").val()
+        }
+        socket.send(JSON.stringify(obj));
         //socket.emit('message', "Input");
         //$('#Input').val('');
         return false;
       });
+
+    socket.addEventListener('message', function (event) {
+    var json = JSON.parse(event.data);
+    switch (json.event) {
+      case 'user_connected':
+        console.log(json.name + ' is connected');
+        break;
+      case 'bdd_add':
+        console.log(json.name);
+        $( "#alert" ).remove();
+        $('body').append('<div id="alert">' + json.name + ' was saved</div>');
+        $('#alert').fadeOut(5000);
+        //afficher la liste d'attente
+        $('#player_waiting').append('<li>' + json.name + ' (highest score : ' + json.highest_score +') is waiting ...</div>');
+        break;
+    }
+    });
+
 }

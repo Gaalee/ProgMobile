@@ -19,36 +19,74 @@
 
 // commented le temps de test le module ws un peu
 
+
 const WebSocket = require('ws');
-const ws = new WebSocket.Server({ port: 9898 });
+const wss = new WebSocket.Server({ port: 9898 });
 
-const sqlite3 = require('sqlite3').verbose();
+var Database = require('better-sqlite3');
+var db = new Database('./db/data.db');
+const createTable = 'CREATE TABLE IF NOT EXISTS players(id INTEGER PRIMARY KEY, nickname text NOT NULL, highest_score int NULL);';
 
-var db = new sqlite3.Database('./db/data.db');
-db.serialize(function() {  //Puts the execution mode into serialized. This means that at most one statement object can execute a query at a time. Other statements wait in a queue until the previous statements are executed.
-  db.run('CREATE TABLE players(id INTEGER PRIMARY KEY, nickname text NOT NULL);',function(err){
-    if(err){
-      return console.log(err.message)
+try {
+  db.exec(createTable);
+  console.log('La base de donnée est prête.')
+} catch (err) {
+  console.error(err)
+}
+
+wss.on('connection', function connection(ws) {
+
+  ws.on('message', function incoming(data) {
+    console.log(`server received: ${data}`);
+    var parse_data = JSON.parse(data);
+
+    switch (parse_data.event) {
+      case 'user_connected':
+        console.log('user is connected');
+        break;
+      case 'bdd_add': //il faudrait verifier la validiter du json pour voir si l'utilisateur a bien envoyer un string
+      var prep = db.prepare('SELECT * FROM players WHERE nickname=?'); //ckeck if player exist
+      var player = prep.get(parse_data.name);
+      if(player === undefined){ 
+        console.log("le pseudo utilisé n'a pas été trouvé donc il va être ajouté à la base de donnée.")
+        var prep = db.prepare("INSERT INTO players (nickname, highest_score) VALUES(?, ?)");
+        try {
+          prep.run(parse_data.name, 0)
+          console.log("l'utilisateur à été enregistré.")
+        } catch (err) {
+          console.error(err)
+        }
+      }else{
+        //
+        console.log(player.nickname + " a un score max de :" + player.highest_score)
+      }
+
+      parse_data.highest_score = player.highest_score;
+        wss.clients.forEach(function each(client) {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify(parse_data));
+          }
+        });
+        break;
+        case 'state_of_the_game':
+          //exemple pour broadcast to all client
+          // wss.clients.forEach(function each(client) {
+          //   if (client.readyState === WebSocket.OPEN) { //rajouter client !== ws si on veut ignorer le client qui envoi le msg
+          //     client.send(message);
+          //   }else{
+          //     console.log("message n'a pas atteint le client");
+          //   }
+          // });
+          break;
     }
-    console.log('Table created')
-    })
- 
-    db.close()
-
-});
-
-ws.on('connection', function connection(wsConnection) {
-  wsConnection.on('message', function incoming(message) {
-    console.log(`server received: ${message}`);
-    wsConnection.send('Hi this is WebSocket server!');
   });
-  wsConnection.on('data', function incoming(data) {
-    console.log(`JVEUX METTRE CA DANS LA BDD: ${data}`);
-  });
-  wsConnection.on('close', function(event) {
+
+  ws.on('close', function(event) {
     console.log('Client has disconnected.');
   });
-  //wsConnection.send('got your message!');
-  console.log("Nombre de client(s) connecté(s) : " + ws.clients.size);
+
+  console.log("Nombre de client(s) connecté(s) : " + wss.clients.size);
+  // var client_info = '{"event" : "user_connected" ,"name" : "client'+wss.clients.size+'"}'
+  // ws.send(JSON.stringify(client_info));
 });
 

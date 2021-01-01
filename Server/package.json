@@ -10,9 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "socket.io": "^3.0.3",
-    "sqlite3": "^5.0.0",
-    "websocket": "^1.0.32",
+    "better-sqlite3": "^7.1.2",
     "ws": "^7.4.1"
   }
 }
