@@ -1,5 +1,5 @@
 # intellij configs
-idea/
+.idea/
 
 #database files
 *.db
