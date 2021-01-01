@@ -53,15 +53,16 @@ wss.on('connection', function connection(ws) {
         try {
           prep.run(parse_data.name, 0)
           console.log("l'utilisateur à été enregistré.")
+          parse_data.highest_score = 0;
         } catch (err) {
           console.error(err)
         }
       }else{
-        //
         console.log(player.nickname + " a un score max de :" + player.highest_score)
+        parse_data.highest_score = player.highest_score;
       }
 
-      parse_data.highest_score = player.highest_score;
+      
         wss.clients.forEach(function each(client) {
           if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify(parse_data));
