@@ -4,16 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3b4f64f8-987a-4781-bf8e-3c2f8c3f5ce0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/www/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Client/www/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Client/www/js/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/Client/www/js/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/Server.js" beforeDir="false" afterPath="$PROJECT_DIR$/Server/Server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Server/db/data.db" beforeDir="false" afterPath="$PROJECT_DIR$/Server/db/data.db" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-    </list>
+    <list default="true" id="3b4f64f8-987a-4781-bf8e-3c2f8c3f5ce0" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

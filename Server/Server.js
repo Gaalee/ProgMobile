@@ -86,6 +86,7 @@ wss.on('connection', function connection(ws) {
   });
 
   console.log("Nombre de client(s) connecté(s) : " + wss.clients.size);
+  
   // var client_info = '{"event" : "user_connected" ,"name" : "client'+wss.clients.size+'"}'
   // ws.send(JSON.stringify(client_info));
 });
