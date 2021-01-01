@@ -1,5 +1,8 @@
 # intellij configs
-.idea/
+idea/
+
+#database files
+*.db
 
 # Logs
 logs
