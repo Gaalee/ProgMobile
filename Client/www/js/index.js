@@ -22,23 +22,8 @@
 document.addEventListener('deviceready', onDeviceReady, false);
 
 function onDeviceReady() {
-    // Cordova is now initialized. Have fun!
-
     document.getElementById('deviceready').classList.add('ready');
 
-    // Say now we will try to connect using WebSocket
-    //document.getElementById('WebSocketStatus').innerText = "Try to connect using WebSocket";
-
-    // Create the Web socket !
-//    const ws = new WebSocket('ws://localhost:9898/');
-//    ws.onopen = function() {
-//        console.log('WebSocket Client Connected');
-//        ws.send('Hi this is web client.');
-//    };
-//    ws.onmessage = function(e) {
-//        console.log("Received: '" + e.data + "'");
-//        document.getElementById('WebSocketStatus').innerText = "Received from server :" + e.data;
-//    };
 
     const socket = new WebSocket('ws://localhost:9898');
 
@@ -50,30 +35,44 @@ function onDeviceReady() {
       console.log('The connection has been closed');
     });
 
+    //On player input, check database to create or find the player
     $('#register_player').submit(function(){
         var obj = {
-            event: "bdd_add",
+            event: "bdd_check_player",
             name: $("#pseudo").val()
         }
         socket.send(JSON.stringify(obj));
-        //socket.emit('message', "Input");
-        //$('#Input').val('');
         return false;
       });
 
     socket.addEventListener('message', function (event) {
-    var json = JSON.parse(event.data);
-    switch (json.event) {
+    var parse_data = JSON.parse(event.data);
+    switch (parse_data.event) {
       case 'user_connected':
-        console.log(json.name + ' is connected');
+        console.log(parse_data.name + ' is connected');
         break;
-      case 'bdd_add':
-        console.log(json.name);
+      case 'bdd_check_player':
+        console.log(parse_data);
+
+        //alert box status
         $( "#alert" ).remove();
-        $('body').append('<div id="alert">' + json.name + ' was saved</div>');
+        $('body').prepend('<div id="alert">' + parse_data.name + ' was saved</div>');
         $('#alert').fadeOut(5000);
+        $("#pseudo").value = '';
+        $("#register_player").hide();
+        break;
+      case 'waiting_list':
         //afficher la liste d'attente
-        $('#player_waiting').append('<li>' + json.name + ' (highest score : ' + json.highest_score +') is waiting ...</div>');
+        $("#player_waiting").empty()
+        parse_data.players.forEach(player => {
+        console.log(player)
+        $('#player_waiting').append('<li>' + player.name + ' (highest score : ' + player.highest_score +') is waiting ...</div>');
+        });
+        break;
+      case 'error':
+         $( "#alert" ).remove();
+         $('body').prepend('<div id="alert">' + parse_data.message + '</div>');
+         $('#alert').fadeOut(5000);
         break;
     }
     });
