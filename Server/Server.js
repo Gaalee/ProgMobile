@@ -36,11 +36,8 @@ try {
 }
 
 function find_player(arr, name){
-  console.log(arr);
-  console.log(name);
-  for(var i=0; i<arr.players.length; i++){
-    console.log(arr.players[i]);
-    if(arr.players[i].name === name){
+  for(var i=0; i<arr.length; i++){
+    if(arr[i].name === name){
       return true;
     }
   }
@@ -84,8 +81,9 @@ wss.on('connection', function connection(ws) {
       }
 
 
-      if(find_player(waiting_list,parse_data.name) == false){
+      if(find_player(waiting_list.players,parse_data.name) == false){
         ws.name = parse_data.name;//store websocket username used
+        ws.send(JSON.stringify({event: "user_is_identified", name : ws.name}));//send back client name and store it
         ws.send(JSON.stringify(parse_data));//send back player to client
 
         waiting_list.players.push({name: parse_data.name, highest_score: parse_data.highest_score})
@@ -99,15 +97,50 @@ wss.on('connection', function connection(ws) {
       }
 
         break;
-        case 'state_of_the_game':
-          //exemple pour broadcast to all client
-          // wss.clients.forEach(function each(client) {
-          //   if (client.readyState === WebSocket.OPEN) { //rajouter client !== ws si on veut ignorer le client qui envoi le msg
-          //     client.send(message);
-          //   }else{
-          //     console.log("message n'a pas atteint le client");
-          //   }
-          // });
+        case 'ask_start_game':
+          var starting_player = [];
+          waiting_list.players = waiting_list.players.filter(player => {
+            if(player.name !== parse_data.name) return player;
+            starting_player.push(player);
+          });
+          for(var i=1; i<parse_data.nbplayer; i++){
+            starting_player.push(waiting_list.players.shift());
+          }
+          console.log(starting_player)
+          //parse_data.name;
+          //parse_data.nbplayer;
+          console.log(waiting_list);
+          wss.clients.forEach(function each(client) {
+            if (client.readyState === WebSocket.OPEN) {
+              client.send(JSON.stringify(waiting_list));
+            }
+          });
+          wss.clients.forEach(function each(client) {
+            if (client.readyState === WebSocket.OPEN && find_player(starting_player,client.name) == true) {
+              client.send(JSON.stringify({event: "start_game", players: starting_player}));
+            }
+          });
+        break;
+        case 'player_turn':
+          console.log(parse_data.player);
+          console.log(parse_data.players);
+          //parse_data.players.map(obj => parse_data.player.find(o => o.name === obj.name) || obj);
+          //console.log(parse_data.players);
+          wss.clients.forEach(function each(client) {
+            if (client.readyState === WebSocket.OPEN && find_player(parse_data.players,client.name) == true) {
+              client.send(JSON.stringify({event: "update_player", player: parse_data.player, players: parse_data.players}));
+            }
+          });
+        break;
+        case 'check_dead':
+          console.log(parse_data.player_alive);
+          console.log(parse_data.players);
+          //if tout est bon alors on renvoi la fin de game au client
+          wss.clients.forEach(function each(client) {
+            if (client.readyState === WebSocket.OPEN && find_player(parse_data.players,client.name) == true) {
+              client.send(JSON.stringify({event: "end_game", status: 1, player_alive: parse_data.player_alive, players: parse_data.players}));
+            }
+          });
           break;
     }
   });

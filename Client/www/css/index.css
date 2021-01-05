@@ -107,10 +107,25 @@ h1 {
   outline-offset: 5px;
 }
 
+#game{
+  display:none;
+}
+
+#alert{
+  position:absolute;
+}
+
+#waiting_block{
+  display:none;
+}
 
 @media screen and (prefers-color-scheme: dark) {
     body {
-        background-image:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%);
+        background:linear-gradient(to bottom, #585858 0%, #1B1B1B 51%) fixed;
+        webkit-background-size: cover;
+             -moz-background-size: cover;
+             -o-background-size: cover;
+             background-size: cover;
     }
 }
 
