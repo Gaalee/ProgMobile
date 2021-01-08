@@ -1,6 +1,5 @@
 # ProgMobile
 Repo de la matière Programmation Mobile M2.
-Retrouver le compte rendu dans le partie Wiki.
 
 ## Clone & Setup
 `git clone https://github.com/Gaalee/ProgMobile.git`
