@@ -22,12 +22,14 @@
 document.addEventListener('deviceready', onDeviceReady, false);
 const socket = new WebSocket('ws://localhost:9898');
 function onDeviceReady() {
-    document.getElementById('deviceready').classList.add('ready');
+    //document.getElementById('deviceready').classList.add('ready');
 
-
+    // declare var
     var client_name = "";
     var waiting_list = [];
 
+
+    //event click on button
     $("#start_at_2").click(function(){
         socket.send(JSON.stringify({event: "ask_start_game", name : client_name, nbplayer: 2}));
     });
@@ -100,13 +102,14 @@ function onDeviceReady() {
         return false;
       });
 
+    //On server message sent
     socket.addEventListener('message', function (event) {
     var parse_data = JSON.parse(event.data);
     switch (parse_data.event) {
-      case 'user_is_identified':
+      case 'user_is_identified': //store player name
         client_name = parse_data.name;
         break;
-      case 'bdd_check_player':
+      case 'bdd_check_player': //send player back from server
         console.log(parse_data);
 
         //alert box status
@@ -116,7 +119,7 @@ function onDeviceReady() {
         $("#pseudo").value = '';
         $("#register_player").hide();
         break;
-      case 'waiting_list':
+      case 'waiting_list': // update waiting_list display
       if(parse_data.players.length != 0){
         if(parse_data.players.length >= 2){
             $('#start_at_2').prop('disabled', false);
@@ -131,7 +134,7 @@ function onDeviceReady() {
         if(client_name != ""){
             $("#waiting_block").show();
         }
-        //afficher la liste d'attente
+        //display frontend
         $("#player_waiting").empty()
         parse_data.players.forEach(player => {
         console.log(player)
@@ -151,17 +154,29 @@ function onDeviceReady() {
         console.log(parse_data.players);
         Player.allInstances = parse_data.players;
       break;
-      case 'end_game':
+      case 'end_game'://check for end game status and display outcome accordingly
         if(parse_data.status == 1){
-          console.log(parse_data.player_alive);
-          console.log(parse_data.players);
           context.fillStyle = parse_data.player_alive[0].color;
           context.fillText(parse_data.player_alive[0].name + " won !" , 200, 200);
           clearInterval(game); //kill the loop
+          console.log(parse_data.player_alive[0].name +" == " +client_name + "??????????????");
+          if(parse_data.player_alive[0].name == client_name){
+            console.log("moi qui gagné");
+            socket.send(JSON.stringify({event: "game_result", status: parse_data.status, name : client_name}));
+          }
+        }else if(parse_data.status == 0){
+          context.fillStyle = "#FFF";
+          context.fillText(" Draw !" , 200, 200);
+          clearInterval(game); //kill the loop
+          if(parse_data.players[0].name == client_name){
+            socket.send(JSON.stringify({event: "game_result", status: parse_data.status, name : client_name}));
+          }
         }else{
-            console.log("error")
+            //player disconnected ?
+           clearInterval(game); //kill the loop
         }
-      case 'error':
+        break;
+      case 'error'://small visual to show some message to the client not used as much
          $( "#alert" ).remove();
          $('body').prepend('<div id="alert">' + parse_data.message + '</div>');
          $('#alert').fadeOut(5000);
@@ -171,6 +186,7 @@ function onDeviceReady() {
 
 }
 
+//game tron frontend
 const canvas = document.getElementById('tron');
 const context = canvas.getContext('2d');
 context.textAlign = 'center';
@@ -203,8 +219,6 @@ function updatePlayer(players){
     });
 }
 
-
-//find playable cells
 function getPlayableCells(canvas, unit) {
   let playableCells = new Set();
   for (let i = 0; i < canvas.width / unit; i++) {
@@ -215,7 +229,7 @@ function getPlayableCells(canvas, unit) {
   return playableCells;
 };
 
- //draw grid
+
 function drawBackground() {
     for (var x = 0.5; x < canvas.width; x += unit) {
       context.moveTo(x, 0);
@@ -230,7 +244,6 @@ function drawBackground() {
     context.stroke();
 };
 
-//place les joueurs sur la grille
 function drawStartingPositions(players) {
   players.forEach(p => {
     context.fillStyle = p.color;
@@ -240,22 +253,21 @@ function drawStartingPositions(players) {
   });
 };
 
-
-function draw() {
-  if (Player.allInstances.filter(p => !p.key).length === 0) { //condition pour commencer le jeu
-  // in-game logic...
-
+function draw() { // game loop
+  if (Player.allInstances.filter(p => !p.key).length === 0) { //game start when all player use one key of direction
     console.log(playerCount);
-    if (playerCount === 1) {
+
+    if (playerCount === 1) {//if client detect dead player then send to server
       const alivePlayers = Player.allInstances.filter(p => p.dead === false);
-      //outcome = `${alivePlayers[0].name} wins!`;
-      socket.send(JSON.stringify({event:"check_dead", player_alive: alivePlayers, players: Player.allInstances}));
+      outcome = 1;
+      socket.send(JSON.stringify({event:"check_dead", status: outcome, player_alive: alivePlayers, players: Player.allInstances}));
     } else if (playerCount === 0) {
-      outcome = 'Draw!';
-      socket.send(JSON.stringify({event:"check_dead", player_alive: alivePlayers, players: Player.allInstances}));
+      outcome = 0;
+      const alivePlayers = Player.allInstances.filter(p => p.dead === false);
+      socket.send(JSON.stringify({event:"check_dead", status: outcome, player_alive: alivePlayers, players: Player.allInstances}));
     }
 
-    Player.allInstances.forEach(p => {//pour chaque joueur A CHANGER
+    Player.allInstances.forEach(p => {//client side to check if people are dying
       if (p.key) {
         p.direction = p.key;
         context.fillStyle = p.color;
@@ -263,7 +275,6 @@ function draw() {
         context.strokeStyle = 'black';
         context.strokeRect(p.x, p.y, unit, unit);
         if (!playableCells.has(`${p.x}x${p.y}y`) && p.dead === false) {
-          //socket.send(JSON.stringify({event:"check_dead", player: p, playable:playableCells}));
           p.dead = true;
           p.direction = '';
           playerCount -= 1;
@@ -282,16 +293,18 @@ function draw() {
 
   };
 };
+    //declare var for the game
     let outcome, playerCount,playableCells, game;
+
 function start_game(client,players){
     var i = 0;
-    var colour = ["#2378f7", "#bf2424", "#24bf62", "#d4d424"];
-    var start_pos = [{x: 60, y: 60},{x: 340, y: 330}, {x: 60, y: 330},{x: 330, y: 60}]
+    var colour = ["#2378f7", "#bf2424", "#24bf62", "#d4d424"];//panel of color
+    var start_pos = [{x: 60, y: 60},{x: 340, y: 330}, {x: 60, y: 330},{x: 330, y: 60}]; //pannel of starting coord
     Player.allInstances = [];
 
-    $("#game").show();
+    $("#game").show(); //show gamebord
 
-    players.forEach(player => {
+    players.forEach(player => {//create player
         let p = new Player(start_pos[i].x, start_pos[i].y, colour[i], player.name, player.highest_score);
         if(player.name == client){
             $("#player_color").html("<font color='"+colour[i]+"'><b>" + client + "</b></font>");
@@ -304,10 +317,8 @@ function start_game(client,players){
 
     drawBackground();
 
-    drawStartingPositions(Player.allInstances);
+    drawStartingPositions(Player.allInstances); //draw player init pos
 
-
-    //game logic
-
+    //start the game loop
     game = setInterval(draw, 100);
 }
