@@ -21,7 +21,7 @@ Se placer à la racine du clone.
 
 `cordova platform add browser`
 
-`cordova build browser`
+`cordova build browser` (facultatif)
 
 `cordova run browser`
 
