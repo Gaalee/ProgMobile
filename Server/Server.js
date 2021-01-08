@@ -26,7 +26,7 @@ wss.on('connection', function connection(ws) { //on client connexion
   ws.send(JSON.stringify(waiting_list));//update client from the waiting list on connexion
 
   ws.on('message', function incoming(data) {//on client received msg
-    console.log(`server received: ${data}`);//debugg console.log
+    //console.log(`server received: ${data}`);//debugg console.log
     var parse_data = JSON.parse(data);//parse data to check event and data
 
     switch (parse_data.event) {

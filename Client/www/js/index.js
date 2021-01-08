@@ -56,7 +56,6 @@ function onDeviceReady() {
         p[0].key = 'RIGHT';
         socket.send(JSON.stringify({event: "player_turn", player: p, players: Player.allInstances}))
       }
-      console.log(p[0]);
     });
     $("#up").click(function(){
         let p = Player.allInstances.filter(player => {
@@ -67,7 +66,6 @@ function onDeviceReady() {
         p[0].key = 'UP';
         socket.send(JSON.stringify({event: "player_turn", player: p, players: Player.allInstances}))
       }
-      console.log(p[0]);
     });
     $("#down").click(function(){
         let p = Player.allInstances.filter(player => {
@@ -78,7 +76,6 @@ function onDeviceReady() {
         p[0].key = 'DOWN';
         socket.send(JSON.stringify({event: "player_turn", player: p, players: Player.allInstances}))
       }
-      console.log(p[0]);
     });
 
     socket.addEventListener('open', function (event) {
@@ -110,8 +107,6 @@ function onDeviceReady() {
         client_name = parse_data.name;
         break;
       case 'bdd_check_player': //send player back from server
-        console.log(parse_data);
-
         //alert box status
         $( "#alert" ).remove();
         $('body').prepend('<div id="alert">' + parse_data.name + ' was saved</div>');
@@ -137,7 +132,6 @@ function onDeviceReady() {
         //display frontend
         $("#player_waiting").empty()
         parse_data.players.forEach(player => {
-        console.log(player)
         $('#player_waiting').append('<li>' + player.name + ' (highest score : ' + player.highest_score +') is waiting ...</div>');
         });
       }else{
@@ -150,8 +144,6 @@ function onDeviceReady() {
         start_game(client_name,parse_data.players);
       break;
       case 'update_player':
-        console.log(Player.allInstances);
-        console.log(parse_data.players);
         Player.allInstances = parse_data.players;
       break;
       case 'end_game'://check for end game status and display outcome accordingly
@@ -159,9 +151,7 @@ function onDeviceReady() {
           context.fillStyle = parse_data.player_alive[0].color;
           context.fillText(parse_data.player_alive[0].name + " won !" , 200, 200);
           clearInterval(game); //kill the loop
-          console.log(parse_data.player_alive[0].name +" == " +client_name + "??????????????");
           if(parse_data.player_alive[0].name == client_name){
-            console.log("moi qui gagné");
             socket.send(JSON.stringify({event: "game_result", status: parse_data.status, name : client_name}));
           }
         }else if(parse_data.status == 0){
@@ -255,7 +245,6 @@ function drawStartingPositions(players) {
 
 function draw() { // game loop
   if (Player.allInstances.filter(p => !p.key).length === 0) { //game start when all player use one key of direction
-    console.log(playerCount);
 
     if (playerCount === 1) {//if client detect dead player then send to server
       const alivePlayers = Player.allInstances.filter(p => p.dead === false);
